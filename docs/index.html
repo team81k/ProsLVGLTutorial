@@ -5,11 +5,12 @@
         <meta name='viewport' content='width=device-width, initial-scale=1'>
         <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
         <link rel="stylesheet" type="text/css" href="prism.css">
+        <link rel="shortcut icon" href="favicon.png"/>
         <style>
-            p { font-family: Ariel, Roboto; line-height: 1.6; }
-            body { font-family: Ariel, Roboto; max-width: 1000px; margin: auto; padding: 15px; }
-            #author { fot-size: 20px; }
-
+            p { font-family: Roboto; line-height: 1.6; }
+            body { font-family: Roboto; margin: auto; max-width: 1000px; padding: 15px; }
+            a { text-decoration: none; color: black; border-bottom: 3px solid #3d7e9a; transition: border 0.5s; }
+            a:hover { border-bottom: 3px solid gold; }
             .code-block { border-left: 5px solid #3d7e9a; }
             .code-block-title
             {
@@ -22,62 +23,67 @@
                 border-bottom: 2px solid #3d7e9a;
 
             }
+            h1 { border-bottom: 2px solid grey; font-size: 50px; margin-bottom: 10px; width: max-content; }
+            .author { margin-bottom: 50px; margin-left: 50px; }
+            h2 { border-bottom: 2px solid grey; width: 75%; }
+            h3 { border-bottom: 2px solid grey; width: 75%; }
         </style>
     </head>
     <body>
         <h1>LVGL Tuorial</h1>
-        <div id='author'>By <b><a href='http://www.vexmen.com/' target='_blank'>Vexmen</a></b> team <b>81K</b></div>
-
+        <div class='author'>By <b><a href='http://www.vexmen.com/' target='_blank'>Vexmen</a></b> team <b>81K</b></div>
         <h2>Before we start</h2>
         <p>
-            This is a tutorial on how to use LVGL with <a href='https://pros.cs.purdue.edu/' target='_blank'>PROS</a> on Vex V5 Robotics System. LVGL is an Open-source Embedded GUI Library and it comes preintalled with <a href='https://pros.cs.purdue.edu/' target='_blank'>PROS</a> for V5.
+            This is a tutorial on how to use <a href='https://littlevgl.com/' target='_blank'>LVGL</a> with <a href='https://pros.cs.purdue.edu/' target='_blank'>PROS</a> on <a href='https://www.vexrobotics.com/vexedr/v5' target='_blank'>Vex V5 Robotics System</a>. LVGL is an Open-source Embedded GUI Library and it comes preintalled with PROS for V5.
             LVGL's own <a href='https://docs.littlevgl.com/' target='_blank'>documentation</a> is great for refrence but not beginner freindly.
         </P>
         <p>
-            This tutorial is for people who have no prior knowledge of LVGL, but want to create advanced autonomous selector menu for V5.
-            PROS has a built in library to use a simpler lcd emulator but using LVGL you can do a lot more...
+            This tutorial is for people who have no prior knowledge of LVGL, but want to create advanced autonomous selector menu for V5
+            (which is better than the <a href='https://pros.cs.purdue.edu/v5/tutorials/topical/llemu.html' target='_blank'>legacy lcd emulator</a>).
         </p>
+        <img style='width: 49%;' src='autonomousSelectorImage1.jpg'>
+        <img style='width: 49%; float: right;' src='autonomousSelectorImage2.jpg'>
         <h2>PROS autonomous selector functions</h2>
         <p>
-            A PROS project containes: <code class="language-cpp">opcontrol()</code>, <code class="language-cpp">autonomous()</code>,
+            A PROS project contains: <code class="language-cpp">opcontrol()</code>, <code class="language-cpp">autonomous()</code>,
             <code class="language-cpp">initialize()</code>, <code class="language-cpp">disabled()</code>, and <code class="language-cpp">competition_initialize()</code>.
             The first two are self explanatory, but the other there are were we put most of out LVGL code.
         </p>
         <p>
             <code class="language-cpp">initialize()</code> is <b>always</b> the first function to run when you run you program.
-            It is recommended that it doesn't run for long because it stops everything else from running eveny when plugged into the field.
-            This is the function where I put the screen LVGL initialization code.
+            It is recommended that it doesn't run for long because it stops everything else from running even when plugged into the field or competition switch.
+            This is the function where you should put the screen LVGL initialization code.
         </p>
         <p>
-            <code class="language-cpp">disabled()</code> runs while the robot is in the disabled state of Field Management System or the VEX Competition Switch, following either autonomous or opcontrol.
+            <code class="language-cpp">disabled()</code> runs while the robot is in the disabled state of field or competition switch, following either autonomous or opcontrol.
             When the robot is enabled, this task will exit. This function isn't very important in our case.
         </p>
         <p>
             <code class="language-cpp">competition_initialize()</code> runs after <code class="language-cpp">initialize()</code>, and before autonomous when connected to the Field
-            Management System or the VEX Competition Switch.
+            field or competition switch.
             This is intended for competition-specific initialization routines, such as an autonomous selector and it is were you want to enabled you selector.
             This task will exit when the robot is enabled and autonomous or opcontrol starts.
         </p>
         <h2>LVGL basics</h2>
         <p>
-            In LVGL everything is made of object/elements which are stored as <code class="language-cpp">lv_obj_t * myObject</code>.
-            The objects are create by using <code class="language-cpp">lv_<b>(object type)</b>_create(lv_obj_t * parent, lv_obj_t * copy)</code>.
+            In LVGL everything is made of object/elements which are stored as <code class="language-cpp">lv_obj_t*</code>.
+            The objects are create by using <code class="language-cpp">lv_&lt;object type&gt;_create(lv_obj_t * parent, lv_obj_t * copy)</code>.
             The parent must be specified, but the copy can be <code class="language-cpp">NULL</code>.
             Some common types are: <code class="language-cpp">lv_obj_create()</code>, <code class="language-cpp">lv_page_create()</code>, <code class="language-cpp">lv_label_create()</code>, <code class="language-cpp">lv_btn_create()</code>;
-            there are however a lot more type, all of which you can see on LVGL's <a href='https://docs.littlevgl.com/' target='_blank'>documentation</a>.
+            there are however a lot more types, all of which you can see on LVGL's <a href='https://docs.littlevgl.com/' target='_blank'>documentation</a>.
         </p>
         <p>
             The objects also have a style, how they look, which can be changed.
-            Style is stored as <code class="language-cpp">lv_style_t myStyle</code> and it is very important that this doesn't get delocated;
-            if it is not a global variable then it must be static. Most object have multiple differnt styles, for example a button has
-            a style for pressed and unpressed (a button actual has 6 styles);
+            Style is stored as <code class="language-cpp">lv_style_t</code> and it is very important that this doesn't get deallocated;
+            if it is not a global variable then it must be static. Most objects have multiple differnt styles, for example, a button has
+            styles for pressed, unpressed, etc.
         </p>
         <p>
             To set an object's style you use a function like this: <code class="language-cpp">lv_obj_set_style(myObject, &myStyle);</code>.
-            For object with multiple style you use <code class="language-cpp">lv_<b>(object type)</b>_set_style(myObject, <b>(the style type)</b>, myStyle);</code>.
+            For object with multiple styles you use <code class="language-cpp">lv_&lt;object type&gt;_set_style(myObject, &lt;the style type&gt;, myStyle);</code>.
             This is how it would look for a button <code class="language-cpp">lv_btn_set_style(myButon, LV_BTN_STYLE_REL, myStyle);</code>.
             More about style in general can be found here: <a href='https://docs.littlevgl.com/#Styles' target='_blank'>LVGL style documentation</a>.
-            The documentation also has all the indiviual style types for each type of object.
+            The documentation also has all the indiviual styles types for each type of object.
         </p>
         <h3>Basic LVGL example</h3>
         <p>
@@ -140,8 +146,8 @@ void disabled() {}
 
 void competition_initialize() {}</code></pre>
         <p>
-            This exmple showed how to create and style a button and create labels.
-            Using this you can create an autonomous selector with many buttons and labels.
+            The above exmple shows how to create labels and buttons.
+            That would be enough to create an autonomous selector with multiple buttons and labels.
             Other objects, like sliders, are added in a similar way, and there is documentation about all the objects and examples
             on how to implement them on <a href='https://docs.littlevgl.com/' target='_blank'>LVGL's documentation page</a>.
         </p>
@@ -258,7 +264,7 @@ void setBtnStyle(lv_style_t * btnStyle, lv_obj_t * btn)
             which can be used to switch between differnt pages. For example one page is an autonomous selector and another can
             display data during user control and autonomous.
         </p>
-
+        </div>
         <script src="prism.js"></script>
     </body>
 </html>
